@@ -1,0 +1,4 @@
+doors
+panes
+slabs
+walls
