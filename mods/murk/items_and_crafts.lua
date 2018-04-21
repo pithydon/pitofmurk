@@ -634,12 +634,10 @@ slabs.register_slab_and_stair("murk:glass", {
 	groups = {pick = 1, hand = 1},
 	stack_max = 64
 }, {
-	{"murk_glass_slab.png", "murk_glass.png", "murk_glass.png^murk_glass_stair.png",
-			"murk_glass.png^(murk_glass_stair.png^[transformR270)", "murk_glass.png", "murk_glass_slab.png"},
-	{"murk_glass.png^murk_glass_stair.png", "murk_glass.png", "murk_glass_slab.png^murk_glass_stair.png",
-			"murk_glass.png^(murk_glass_stair.png^[transformR270)", "murk_glass.png^murk_glass_stair.png", "murk_glass_slab.png^murk_glass_stair.png"},
-	{"murk_glass.png^(murk_glass_stair.png^[transformR180)", "murk_glass.png", "murk_glass.png^murk_glass_stair.png",
-		"murk_glass.png", "murk_glass.png", "murk_glass.png^(murk_glass_stair.png^[transformR270)"}
+	{"murk_glass_slab.png", "murk_glass_slab.png", "murk_glass_stair.png",
+			"murk_glass_stair.png", "murk_glass_slab.png"},
+	{"murk_glass_stair.png"},
+	{"murk_glass_stair.png"}
 })
 
 panes.register_mesh_pane("murk:glass_pane", {

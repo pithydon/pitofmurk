@@ -2,31 +2,6 @@ slabs = {}
 
 local creative = minetest.setting_getbool("creative_mode")
 
-local stair_box = {
-	type = "fixed",
-	fixed = {
-		{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-		{-0.5, 0, 0, 0.5, 0.5, 0.5}
-	}
-}
-
-local stair_inner_box = {
-	type = "fixed",
-	fixed = {
-		{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-		{-0.5, 0, 0, 0.5, 0.5, 0.5},
-		{-0.5, 0, -0.5, 0, 0.5, 0}
-	}
-}
-
-local stair_outer_box = {
-	type = "fixed",
-	fixed = {
-		{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-		{-0.5, 0, 0, 0, 0.5, 0.5}
-	}
-}
-
 local backface = function(tiles)
 	local out = {}
 	for i,v in ipairs(tiles) do
@@ -239,6 +214,7 @@ function slabs.register_slab(name, def, recipeitem, craft)
 			end
 			local under = pointed_thing.under
 			local above = pointed_thing.above
+			local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
 			local on_node = minetest.get_node(under)
 			if on_node.name == name and not minetest.is_protected(under, placer:get_player_name()) and
 					((on_node.param2 > 19 and under.y > above.y) or (on_node.param2 < 4 and under.y < above.y)) then
@@ -249,7 +225,7 @@ function slabs.register_slab(name, def, recipeitem, craft)
 				return itemstack
 			end
 			local param2 = 0
-			if under.y > above.y or (under.y == above.y and minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) then
+			if under.y > above.y or (under.y == above.y and (minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) or (face_pos > 0.25 and face_pos < 0.5)) then
 				param2 = 22
 			end
 			return minetest.item_place(itemstack, placer, pointed_thing, param2)
@@ -271,9 +247,10 @@ function slabs.register_slab(name, def, recipeitem, craft)
 			end
 			local under = pointed_thing.under
 			local above = pointed_thing.above
+			local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
 			local on_node = minetest.get_node(under)
 			local param2 = 0
-			if under.y > above.y or (under.y == above.y and minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) then
+			if under.y > above.y or (under.y == above.y and (minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) or (face_pos > 0.25 and face_pos < 0.5)) then
 				param2 = 22
 			end
 			return minetest.item_place(itemstack, placer, pointed_thing, param2)
@@ -286,15 +263,19 @@ end
 function slabs.register_stair(name, def, recipeitem, stairtiles)
 	local stair_inner_def = table.copy(def)
 	stair_inner_def.stairs = {name, name.."_outer", name.."_inner"}
-	stair_inner_def.drawtype = "mesh"
+	stair_inner_def.drawtype = "nodebox"
 	stair_inner_def.paramtype = "light"
 	stair_inner_def.paramtype2 = "facedir"
 	stair_inner_def.drop = def.drop or name
 	stair_inner_def.groups.not_in_creative_inventory = 1
 	stair_inner_def.groups.stair = 3
-	stair_inner_def.mesh = "slabs_stair_inner.obj"
-	stair_inner_def.collision_box = stair_inner_box
-	stair_inner_def.selection_box = stair_inner_box
+	stair_inner_def.node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, 0, 0.5, 0, 0.5},
+			{-0.5, -0.5, -0.5, 0, 0, 0}
+		}
+	}
 	stair_inner_def.after_dig_node = function(pos, oldnode)
 		local param = get_stair_param(oldnode)
 		local ceiling
@@ -443,19 +424,22 @@ function slabs.register_stair(name, def, recipeitem, stairtiles)
 	end
 	local stair_outer_def = table.copy(stair_inner_def)
 	stair_outer_def.groups.stair = 2
-	stair_outer_def.mesh = "slabs_stair_outer.obj"
-	stair_outer_def.collision_box = stair_outer_box
-	stair_outer_def.selection_box = stair_outer_box
+	stair_outer_def.node_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, 0, 0, 0, 0.5}
+	}
 	local stair_def = table.copy(stair_inner_def)
 	stair_def.groups.not_in_creative_inventory = 0
 	stair_def.groups.stair = 1
-	stair_def.mesh = "slabs_stair.obj"
-	stair_def.collision_box = stair_box
-	stair_def.selection_box = stair_box
+	stair_def.node_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, 0, 0.5, 0 ,0.5}
+	}
 	stair_def.after_place_node = function(pos, placer, itemstack, pointed_thing)
 		local node = minetest.get_node(pos)
 		local ceiling = false
-		if pointed_thing.under.y > pointed_thing.above.y then
+		local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
+		if pointed_thing.under.y > pointed_thing.above.y or (pointed_thing.under.y == pointed_thing.above.y and face_pos > 0.25 and face_pos < 0.5) then
 			ceiling = true
 			if node.param2 == 0 then node.param2 = 20
 			elseif node.param2 == 1 then node.param2 = 23
