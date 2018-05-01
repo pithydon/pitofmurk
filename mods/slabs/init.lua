@@ -2,14 +2,14 @@ slabs = {}
 
 local creative = minetest.setting_getbool("creative_mode")
 
-local backface = function(tiles)
+local tile_mod = function(tiles)
 	local out = {}
 	for i,v in ipairs(tiles) do
 		if type(v) == "string" then
-			out[i] = {name = v, backface_culling = true}
-		elseif v.backface_culling == nil then
+			out[i] = {name = v, align_style = "user"}
+		elseif v.align_style == nil then
 			local tile = table.copy(v)
-			tile.backface_culling = true
+			tile.align_style = "user"
 			out[i] = tile
 		else
 			out[i] = v
@@ -203,6 +203,7 @@ function slabs.register_slab(name, def, recipeitem, craft)
 	slab_def.paramtype = "light"
 	slab_def.paramtype2 = "facedir"
 	slab_def.groups.slab = 1
+	slab_def.tiles = tile_mod(def.tiles)
 	slab_def.node_box = {
 		type = "fixed",
 		fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5}
@@ -683,11 +684,11 @@ function slabs.register_stair(name, def, recipeitem, stairtiles)
 		minetest.swap_node(pos, node)
 	end
 	if stairtiles then
-		stair_def.tiles = backface(stairtiles[1])
-		stair_outer_def.tiles = backface(stairtiles[2])
-		stair_inner_def.tiles = backface(stairtiles[3])
+		stair_def.tiles = tile_mod(stairtiles[1])
+		stair_outer_def.tiles = tile_mod(stairtiles[2])
+		stair_inner_def.tiles = tile_mod(stairtiles[3])
 	else
-		local tiles = backface(def.tiles)
+		local tiles = tile_mod(def.tiles)
 		stair_def.tiles = tiles
 		stair_outer_def.tiles = tiles
 		stair_inner_def.tiles = tiles

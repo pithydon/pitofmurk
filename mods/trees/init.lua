@@ -97,18 +97,6 @@ for _,v in ipairs({
 		tiles = {"trees_"..v[2].."_wood.png"},
 		groups = v[4],
 		stack_max = 64
-	}, {
-		{"trees_"..v[2].."_wood.png"},
-		{
-			"trees_"..v[2].."_wood.png^(trees_"..v[2].."_wood.png^[transformR90^slabs_stair_turntexture.png^[makealpha:255,0,255)",
-			"trees_"..v[2].."_wood.png^(trees_"..v[2].."_wood.png^slabs_stair_turntexture.png^[transformR270^[makealpha:255,0,255)",
-			"trees_"..v[2].."_wood.png"
-		},
-		{
-			"trees_"..v[2].."_wood.png^(trees_"..v[2].."_wood.png^[transformR90^(slabs_stair_turntexture.png^[transformR180)^[makealpha:255,0,255)",
-			"trees_"..v[2].."_wood.png^(trees_"..v[2].."_wood.png^[transformR270^(slabs_stair_turntexture.png^[transformR90)^[makealpha:255,0,255)",
-			"trees_"..v[2].."_wood.png"
-		}
 	})
 
 	local wood_blocks_groups = table.copy(v[4])

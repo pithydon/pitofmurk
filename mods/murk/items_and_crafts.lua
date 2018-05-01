@@ -634,8 +634,8 @@ slabs.register_slab_and_stair("murk:glass", {
 	groups = {pick = 1, hand = 1},
 	stack_max = 64
 }, {
-	{"murk_glass_slab.png", "murk_glass_slab.png", "murk_glass_stair.png",
-			"murk_glass_stair.png", "murk_glass_slab.png"},
+	{{name = "murk_glass_slab.png", align_style = "node"}, {name = "murk_glass_slab.png", align_style = "node"},
+			"murk_glass_stair.png", "murk_glass_stair.png", "murk_glass_slab.png"},
 	{"murk_glass_stair.png"},
 	{"murk_glass_stair.png"}
 })
