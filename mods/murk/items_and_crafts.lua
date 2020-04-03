@@ -263,8 +263,9 @@ slabs.register_slab_and_stair("murk:snow_brick", {
 minetest.register_node("murk:water_source", {
 	description = "Water",
 	drawtype = "liquid",
+	waving = 3,
 	tiles = {{
-		name = "murk_water_source_animated.png^[opacity:191",
+		name = "murk_water_source_animated.png",
 		animation = {
 			type = "vertical_frames",
 			aspect_w = 16,
@@ -292,17 +293,30 @@ minetest.register_node("murk:water_source", {
 minetest.register_node("murk:water_flowing", {
 	description = "Flowing Water",
 	drawtype = "flowingliquid",
-	tiles = {"murk_water.png^[opacity:191"},
-	special_tiles = {{
-		name = "murk_water_flowing_animated.png^[opacity:191",
-		backface_culling = false,
-		animation = {
-			type = "vertical_frames",
-			aspect_w = 16,
-			aspect_h = 16,
-			length = 1,
+	waving = 3,
+	tiles = {"murk_water.png"},
+	special_tiles = {
+		{
+			name = "murk_water_flowing_animated.png",
+			backface_culling = false,
+			animation = {
+				type = "vertical_frames",
+				aspect_w = 16,
+				aspect_h = 16,
+				length = 1,
+			}
+		},
+		{
+			name = "murk_water_flowing_animated.png",
+			backface_culling = false,
+			animation = {
+				type = "vertical_frames",
+				aspect_w = 16,
+				aspect_h = 16,
+				length = 1,
+			}
 		}
-	}},
+	},
 	alpha = 191,
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
@@ -325,8 +339,9 @@ minetest.register_node("murk:water_flowing", {
 minetest.register_node("murk:river_water_source", {
 	description = "River Water",
 	drawtype = "liquid",
+	waving = 3,
 	tiles = {{
-		name = "murk_water_source_animated.png^[opacity:191",
+		name = "murk_water_source_animated.png",
 		animation = {
 			type = "vertical_frames",
 			aspect_w = 16,
@@ -354,17 +369,30 @@ minetest.register_node("murk:river_water_source", {
 minetest.register_node("murk:river_water_flowing", {
 	description = "Flowing River Water",
 	drawtype = "flowingliquid",
-	tiles = {"murk_water.png^[opacity:191"},
-	special_tiles = {{
-		name = "murk_water_flowing_animated.png^[opacity:191",
+	waving = 3,
+	tiles = {"murk_water.png"},
+	special_tiles = {
+		{
+		name = "murk_water_flowing_animated.png",
 		backface_culling = false,
 		animation = {
 			type = "vertical_frames",
 			aspect_w = 16,
 			aspect_h = 16,
 			length = 1,
+			}
+		},
+		{
+		name = "murk_water_flowing_animated.png",
+		backface_culling = false,
+		animation = {
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 1,
+			}
 		}
-	}},
+	},
 	alpha = 191,
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
@@ -387,6 +415,7 @@ minetest.register_node("murk:river_water_flowing", {
 minetest.register_node("murk:lava_source", {
 	description = "Lava",
 	drawtype = "liquid",
+	waving = 3,
 	tiles = {{
 		name = "murk_lava_source_animated.png",
 		animation = {
@@ -417,8 +446,10 @@ minetest.register_node("murk:lava_source", {
 minetest.register_node("murk:lava_flowing", {
 	description = "Flowing Lava",
 	drawtype = "flowingliquid",
+	waving = 3,
 	tiles = {"murk_lava.png"},
-	special_tiles = {{
+	special_tiles = {
+		{
 		name = "murk_lava_flowing_animated.png",
 		backface_culling = false,
 		animation = {
@@ -426,8 +457,19 @@ minetest.register_node("murk:lava_flowing", {
 			aspect_w = 16,
 			aspect_h = 16,
 			length = 2,
+			}
+		},
+		{
+		name = "murk_lava_flowing_animated.png",
+		backface_culling = false,
+		animation = {
+			type = "vertical_frames",
+			aspect_w = 16,
+			aspect_h = 16,
+			length = 2,
+			}
 		}
-	}},
+	},
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
 	light_source = 13,
