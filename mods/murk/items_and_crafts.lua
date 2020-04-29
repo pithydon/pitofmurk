@@ -233,7 +233,7 @@ slabs.register_slab_and_stair("murk:sandstone_brick", {
 minetest.register_node("murk:snow", {
 	description = "Snow",
 	tiles = {"murk_snow.png"},
-	groups = {shovel = 1, hand = 1, falling_node = 1},
+	groups = {shovel = 1, hand = 1, falling_node = 1, float = 1},
 	stack_max = 64
 })
 
@@ -625,12 +625,12 @@ walls.register_fence("murk:doomstone_fence", {
 	stack_max = 32
 })
 
-if minetest.setting_getbool("opaque_water") then
+if minetest.setting_getbool("opaque_ice") ~= false then
 	minetest.register_node("murk:ice", {
 		description = "Ice",
 		tiles = {"murk_ice.png"},
 		paramtype = "light",
-		groups = {pick = 1},
+		groups = {pick = 1, slippery = 3},
 		stack_max = 64
 	})
 
@@ -638,7 +638,7 @@ if minetest.setting_getbool("opaque_water") then
 		description = "Fish in Ice",
 		tiles = {"murk_ice.png^murk_fish_in_ice.png"},
 		paramtype = "light",
-		groups = {pick = 1},
+		groups = {pick = 1, slippery = 3},
 		stack_max = 64
 	})
 else
@@ -648,7 +648,7 @@ else
 		tiles = {"murk_ice.png^[opacity:243"},
 		use_texture_alpha = true,
 		paramtype = "light",
-		groups = {pick = 1},
+		groups = {pick = 1, slippery = 3},
 		stack_max = 64
 	})
 
@@ -658,7 +658,7 @@ else
 		tiles = {"murk_ice.png^[opacity:243^murk_fish_in_ice.png"},
 		use_texture_alpha = true,
 		paramtype = "light",
-		groups = {pick = 1},
+		groups = {pick = 1, slippery = 3},
 		stack_max = 64
 	})
 end

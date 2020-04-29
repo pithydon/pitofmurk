@@ -9,6 +9,12 @@ minetest.register_alias("mapgen_gravel", "murk:gravel")
 minetest.register_alias("mapgen_cobble", "murk:cobble")
 minetest.register_alias("mapgen_stair_cobble", "murk:cobble_stair")
 minetest.register_alias("mapgen_mossycobble", "murk:moss_cobble")
+minetest.register_alias("mapgen_desert_stone", "murk:sandstone")
+minetest.register_alias("mapgen_desert_sand", "murk:sand")
+minetest.register_alias("mapgen_snowblock", "murk:snow")
+minetest.register_alias("mapgen_snow", "murk:snow")
+minetest.register_alias("mapgen_ice", "murk:ice")
+minetest.register_alias("mapgen_stair_desert_stone", "murk:sandstone_stair")
 
 local modpath = minetest.get_modpath("mapgen")
 

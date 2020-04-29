@@ -1,4 +1,0 @@
-doors
-murk
-panes
-slabs

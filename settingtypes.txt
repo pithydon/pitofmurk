@@ -1,0 +1,2 @@
+# Make ice not transparent.
+opaque_ice (Opaque Ice) bool true

@@ -227,10 +227,10 @@ function slabs.register_slab(name, def, recipeitem, craft)
 				return itemstack
 			end
 			local param2 = 0
-			if under.y > above.y or (under.y == above.y and (minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) or (face_pos > 0.25 and face_pos < 0.5)) then
+			if under.y > above.y or (under.y == above.y and face_pos < 0.5) then
 				param2 = 22
 			end
-			return minetest.item_place(itemstack, placer, pointed_thing, param2)
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 		end
 	else
 		slab_def.on_place = function(itemstack, placer, pointed_thing)
@@ -242,10 +242,10 @@ function slabs.register_slab(name, def, recipeitem, craft)
 			local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
 			local on_node = minetest.get_node(under)
 			local param2 = 0
-			if under.y > above.y or (under.y == above.y and (minetest.get_item_group(on_node.name, "slab") > 0 and on_node.param2 > 19) or (face_pos > 0.25 and face_pos < 0.5)) then
+			if under.y > above.y or (under.y == above.y and face_pos < 0.5) then
 				param2 = 22
 			end
-			return minetest.item_place(itemstack, placer, pointed_thing, param2)
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 		end
 	end
 
@@ -442,7 +442,7 @@ function slabs.register_stair(name, def, recipeitem, stairtiles)
 		local node = minetest.get_node(pos)
 		local ceiling = false
 		local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
-		if pointed_thing.under.y > pointed_thing.above.y or (pointed_thing.under.y == pointed_thing.above.y and face_pos > 0.25 and face_pos < 0.5) then
+		if pointed_thing.under.y > pointed_thing.above.y or (pointed_thing.under.y == pointed_thing.above.y and face_pos < 0.5) then
 			ceiling = true
 			if node.param2 == 0 then node.param2 = 20
 			elseif node.param2 == 1 then node.param2 = 23

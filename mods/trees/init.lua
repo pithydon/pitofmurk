@@ -104,7 +104,6 @@ for _,v in ipairs({
 			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 		end,
 		after_place_node = function(pos, placer, itemstack, pointed_thing)
-			local timer = minetest.get_node_timer(pos)
 			fresh_node[placer:get_player_name()] = pos
 			minetest.after(1, remove_fresh, pos)
 		end,
@@ -118,7 +117,7 @@ for _,v in ipairs({
 				end
 				fresh_node[player_name] = nil
 			end
-			minetest.node_punch(pos, node, puncher, pointed_thing)
+			return minetest.node_punch(pos, node, puncher, pointed_thing)
 		end
 	})
 
@@ -143,7 +142,75 @@ for _,v in ipairs({
 		description = v[1].." Wood Slab",
 		tiles = {{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
 		groups = v[4],
-		stack_max = 64
+		stack_max = 64,
+		on_place = function(itemstack, placer, pointed_thing)
+			if pointed_thing.type ~= "node" then
+				return itemstack
+			end
+			local under = pointed_thing.under
+			local above = pointed_thing.above
+			local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
+			local on_node = minetest.get_node(under)
+			if on_node.name == "trees:wood_"..v[2].."_slab" and not minetest.is_protected(under, placer:get_player_name()) and
+					((on_node.param2 > 19 and under.y > above.y) or (on_node.param2 < 4 and under.y < above.y)) then
+				if not creative then
+					itemstack:take_item()
+				end
+				if on_node.param2 == 1 or on_node.param2 == 21 then
+					minetest.swap_node(under, {name = "trees:wood_"..v[2], param2 = 1})
+				else
+					minetest.swap_node(under, {name = "trees:wood_"..v[2], param2 = 0})
+				end
+				return itemstack
+			end
+			local param2 = 0
+			if under.y > above.y or (under.y == above.y and face_pos < 0.5) then
+				if under.y == above.y and under.z ~= above.z then
+					param2 = 21
+				elseif under.y > above.y then
+					local pos = placer:get_pos()
+					local x = pos.x - under.x
+					local z = pos.z - under.z
+					if math.abs(x) > math.abs(z) then
+						param2 = 21
+					else
+						param2 = 22
+					end
+				else
+					param2 = 22
+				end
+			elseif under.y == above.y and under.z ~= above.z then
+				param2 = 1
+			elseif under.y < above.y then
+				local pos = placer:get_pos()
+				local x = pos.x - under.x
+				local z = pos.z - under.z
+				if math.abs(x) > math.abs(z) then
+					param2 = 1
+				end
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end,
+		after_place_node = function(pos, placer, itemstack, pointed_thing)
+			fresh_node[placer:get_player_name()] = pos
+			minetest.after(1, remove_fresh, pos)
+		end,
+		on_punch = function(pos, node, puncher, pointed_thing)
+			local player_name = puncher:get_player_name()
+			if fresh_node[player_name] and vector.equals(fresh_node[player_name], pos) then
+				if node.param2 == 22 then
+					minetest.swap_node(pos, {name = node.name, param2 = 21})
+				elseif node.param2 == 21 then
+					minetest.swap_node(pos, {name = node.name, param2 = 22})
+				elseif node.param2 == 0 then
+					minetest.swap_node(pos, {name = node.name, param2 = 1})
+				else
+					minetest.swap_node(pos, {name = node.name, param2 = 0})
+				end
+				fresh_node[player_name] = nil
+			end
+			return minetest.node_punch(pos, node, puncher, pointed_thing)
+		end
 	}, "trees:wood_"..v[2])
 
 	slabs.register_stair("trees:wood_"..v[2].."_stair", {
@@ -253,7 +320,6 @@ minetest.register_node("trees:wood_old", {
 		return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 	end,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
-		local timer = minetest.get_node_timer(pos)
 		fresh_node[placer:get_player_name()] = pos
 		minetest.after(1, remove_fresh, pos)
 	end,
@@ -267,7 +333,7 @@ minetest.register_node("trees:wood_old", {
 			end
 			fresh_node[player_name] = nil
 		end
-		minetest.node_punch(pos, node, puncher, pointed_thing)
+		return minetest.node_punch(pos, node, puncher, pointed_thing)
 	end
 })
 
@@ -284,7 +350,75 @@ slabs.register_slab("trees:wood_old_slab", {
 	description = "Old Wood Slab",
 	tiles = {{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
 	groups = {axe = 1, hand = 3},
-	stack_max = 64
+	stack_max = 64,
+	on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return itemstack
+		end
+		local under = pointed_thing.under
+		local above = pointed_thing.above
+		local face_pos = minetest.pointed_thing_to_face_pos(placer, pointed_thing).y % 1
+		local on_node = minetest.get_node(under)
+		if on_node.name == "trees:wood_old_slab" and not minetest.is_protected(under, placer:get_player_name()) and
+				((on_node.param2 > 19 and under.y > above.y) or (on_node.param2 < 4 and under.y < above.y)) then
+			if not creative then
+				itemstack:take_item()
+			end
+			if on_node.param2 == 1 or on_node.param2 == 21 then
+				minetest.swap_node(under, {name = "trees:wood_old", param2 = 1})
+			else
+				minetest.swap_node(under, {name = "trees:wood_old", param2 = 0})
+			end
+			return itemstack
+		end
+		local param2 = 0
+		if under.y > above.y or (under.y == above.y and face_pos < 0.5) then
+			if under.y == above.y and under.z ~= above.z then
+				param2 = 21
+			elseif under.y > above.y then
+				local pos = placer:get_pos()
+				local x = pos.x - under.x
+				local z = pos.z - under.z
+				if math.abs(x) > math.abs(z) then
+					param2 = 21
+				else
+					param2 = 22
+				end
+			else
+				param2 = 22
+			end
+		elseif under.y == above.y and under.z ~= above.z then
+			param2 = 1
+		elseif under.y < above.y then
+			local pos = placer:get_pos()
+			local x = pos.x - under.x
+			local z = pos.z - under.z
+			if math.abs(x) > math.abs(z) then
+				param2 = 1
+			end
+		end
+		return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		fresh_node[placer:get_player_name()] = pos
+		minetest.after(1, remove_fresh, pos)
+	end,
+	on_punch = function(pos, node, puncher, pointed_thing)
+		local player_name = puncher:get_player_name()
+		if fresh_node[player_name] and vector.equals(fresh_node[player_name], pos) then
+			if node.param2 == 22 then
+				minetest.swap_node(pos, {name = node.name, param2 = 21})
+			elseif node.param2 == 21 then
+				minetest.swap_node(pos, {name = node.name, param2 = 22})
+			elseif node.param2 == 0 then
+				minetest.swap_node(pos, {name = node.name, param2 = 1})
+			else
+				minetest.swap_node(pos, {name = node.name, param2 = 0})
+			end
+			fresh_node[player_name] = nil
+		end
+		return minetest.node_punch(pos, node, puncher, pointed_thing)
+	end
 }, "trees:wood_old")
 
 slabs.register_stair("trees:wood_old_stair", {
