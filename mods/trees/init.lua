@@ -1,4 +1,13 @@
 local modpath = minetest.get_modpath("trees")
+local fresh_node = {}
+local remove_fresh = function(pos)
+	for k,v in pairs(fresh_node) do
+		if vector.equals(v, pos) then
+			fresh_node[k] = nil
+			break
+		end
+	end
+end
 
 for _,v in ipairs({
 	{"Apple", "apple", {axe = 2, hand = 4}, {axe = 2, hand = 3}, "apple"},
@@ -70,9 +79,47 @@ for _,v in ipairs({
 	wood_groups.pseudo_fence = 1
 	minetest.register_node("trees:wood_"..v[2], {
 		description = v[1].." Planks",
-		tiles = {"trees_"..v[2].."_wood.png"},
+		paramtype2 = "facedir",
+		tiles = {"trees_"..v[2].."_wood.png", "trees_"..v[2].."_wood.png", "trees_"..v[2].."_wood.png",
+				"trees_"..v[2].."_wood.png", "trees_"..v[2].."_wood.png^[transformR90"},
 		groups = wood_groups,
-		stack_max = 64
+		stack_max = 64,
+		on_place = function(itemstack, placer, pointed_thing)
+			if pointed_thing.type ~= "node" then
+				return itemstack
+			end
+			local under = pointed_thing.under
+			local above = pointed_thing.above
+			local param2 = 0
+			if under.y == above.y and under.z ~= above.z then
+				param2 = 1
+			elseif under.y ~= above.y then
+				local pos = placer:get_pos()
+				local x = pos.x - under.x
+				local z = pos.z - under.z
+				if math.abs(x) > math.abs(z) then
+					param2 = 1
+				end
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end,
+		after_place_node = function(pos, placer, itemstack, pointed_thing)
+			local timer = minetest.get_node_timer(pos)
+			fresh_node[placer:get_player_name()] = pos
+			minetest.after(1, remove_fresh, pos)
+		end,
+		on_punch = function(pos, node, puncher, pointed_thing)
+			local player_name = puncher:get_player_name()
+			if fresh_node[player_name] and vector.equals(fresh_node[player_name], pos) then
+				if node.param2 == 0 then
+					minetest.swap_node(pos, {name = node.name, param2 = 1})
+				else
+					minetest.swap_node(pos, {name = node.name, param2 = 0})
+				end
+				fresh_node[player_name] = nil
+			end
+			minetest.node_punch(pos, node, puncher, pointed_thing)
+		end
 	})
 
 	walls.register_fence("trees:wood_"..v[2].."_fence", {
@@ -92,11 +139,25 @@ for _,v in ipairs({
 		stack_max = 64
 	}, "trees:wood_"..v[2])
 
-	slabs.register_slab_and_stair("trees:wood_"..v[2], {
-		description = v[1].." Wood",
-		tiles = {"trees_"..v[2].."_wood.png"},
+	slabs.register_slab("trees:wood_"..v[2].."_slab", {
+		description = v[1].." Wood Slab",
+		tiles = {{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
 		groups = v[4],
 		stack_max = 64
+	}, "trees:wood_"..v[2])
+
+	slabs.register_stair("trees:wood_"..v[2].."_stair", {
+		description = v[1].." Wood Stair",
+		groups = v[4],
+		stack_max = 64
+	}, "trees:wood_"..v[2], {
+		{{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
+		{{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
+		{
+			{name = "trees_"..v[2].."_wood.png^[lowpart:50:trees_"..v[2].."_wood.png\\^[transformR90", align_style = "node"},
+			{name = "trees_"..v[2].."_wood.png^[transformR270^[lowpart:50:trees_"..v[2].."_wood.png", align_style = "node"},
+			"trees_"..v[2].."_wood.png"
+		}
 	})
 
 	local wood_blocks_groups = table.copy(v[4])
@@ -135,12 +196,12 @@ minetest.register_node("trees:apple", {
 	description = "Apple",
 	drawtype = "nodebox",
 	paramtype = "light",
-	paramtype2 = "wallmounted",
-	place_param2 = 1,
+	connects_to = {"trees:trunk_apple"},
+	connect_sides = {"top"},
 	node_box = {
-		type = "wallmounted",
-    	wall_top = {-0.25, 0, -0.25, 0.25, 0.5, 0.25},
-    	wall_bottom = {-0.25, -0.5, -0.25, 0.25, 0, 0.25},
+		type = "connected",
+    	connect_top = {-0.25, 0, -0.25, 0.25, 0.5, 0.25},
+    	disconnected_top = {-0.25, -0.5, -0.25, 0.25, 0, 0.25}
 	},
 	tiles = {"trees_apple_top.png", "trees_apple_bottom.png", "trees_apple_side.png"},
 	inventory_image = "trees_apple_inv.png",
@@ -153,12 +214,12 @@ minetest.register_node("trees:apple_unripe", {
 	description = "Unripe Apple",
 	drawtype = "nodebox",
 	paramtype = "light",
-	paramtype2 = "wallmounted",
-	place_param2 = 1,
+	connects_to = {"trees:trunk_apple"},
+	connect_sides = {"top"},
 	node_box = {
-		type = "wallmounted",
-    	wall_top = {-0.1875, 0.125, -0.1875, 0.1875, 0.5, 0.1875},
-    	wall_bottom = {-0.1875, -0.5, -0.1875, 0.1875, -0.125, 0.1875},
+		type = "connected",
+    	connect_top = {-0.1875, 0.125, -0.1875, 0.1875, 0.5, 0.1875},
+    	disconnected_top = {-0.1875, -0.5, -0.1875, 0.1875, -0.125, 0.1875}
 	},
 	tiles = {"trees_apple_unripe_top.png", "trees_apple_unripe_bottom.png", "trees_apple_unripe_side.png"},
 	inventory_image = "trees_apple_unripe_inv.png",
@@ -168,9 +229,46 @@ minetest.register_node("trees:apple_unripe", {
 
 minetest.register_node("trees:wood_old", {
 	description = "Old Planks",
-	tiles = {"trees_old_wood.png"},
+	paramtype2 = "facedir",
+	tiles = {"trees_old_wood.png", "trees_old_wood.png", "trees_old_wood.png", "trees_old_wood.png", "trees_old_wood.png^[transformR90"},
 	groups = {axe = 1, hand = 3, plank = 1, pseudo_fence = 1},
-	stack_max = 64
+	stack_max = 64,
+	on_place = function(itemstack, placer, pointed_thing)
+		if pointed_thing.type ~= "node" then
+			return itemstack
+		end
+		local under = pointed_thing.under
+		local above = pointed_thing.above
+		local param2 = 0
+		if under.y == above.y and under.z ~= above.z then
+			param2 = 1
+		elseif under.y ~= above.y then
+			local pos = placer:get_pos()
+			local x = pos.x - under.x
+			local z = pos.z - under.z
+			if math.abs(x) > math.abs(z) then
+				param2 = 1
+			end
+		end
+		return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+	end,
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		local timer = minetest.get_node_timer(pos)
+		fresh_node[placer:get_player_name()] = pos
+		minetest.after(1, remove_fresh, pos)
+	end,
+	on_punch = function(pos, node, puncher, pointed_thing)
+		local player_name = puncher:get_player_name()
+		if fresh_node[player_name] and vector.equals(fresh_node[player_name], pos) then
+			if node.param2 == 0 then
+				minetest.swap_node(pos, {name = node.name, param2 = 1})
+			else
+				minetest.swap_node(pos, {name = node.name, param2 = 0})
+			end
+			fresh_node[player_name] = nil
+		end
+		minetest.node_punch(pos, node, puncher, pointed_thing)
+	end
 })
 
 walls.register_fence("trees:wood_old_fence", {
@@ -182,21 +280,23 @@ walls.register_fence("trees:wood_old_fence", {
 	stack_max = 64
 }, "trees:wood_old")
 
-slabs.register_slab_and_stair("trees:wood_old", {
-	description = "Old Wood",
-	tiles = {"trees_old_wood.png"},
+slabs.register_slab("trees:wood_old_slab", {
+	description = "Old Wood Slab",
+	tiles = {{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
 	groups = {axe = 1, hand = 3},
 	stack_max = 64
-}, {
-	{"trees_old_wood.png"},
+}, "trees:wood_old")
+
+slabs.register_stair("trees:wood_old_stair", {
+	description = "Old Wood Stair",
+	groups = {axe = 1, hand = 3},
+	stack_max = 64
+}, "trees:wood_old", {
+	{{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
+	{{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
 	{
-		"trees_old_wood.png^(trees_old_wood.png^[transformR90^slabs_stair_turntexture.png^[makealpha:255,0,255)",
-		"trees_old_wood.png^(trees_old_wood.png^slabs_stair_turntexture.png^[transformR270^[makealpha:255,0,255)",
-		"trees_old_wood.png"
-	},
-	{
-		"trees_old_wood.png^(trees_old_wood.png^[transformR90^(slabs_stair_turntexture.png^[transformR180)^[makealpha:255,0,255)",
-		"trees_old_wood.png^(trees_old_wood.png^[transformR270^(slabs_stair_turntexture.png^[transformR90)^[makealpha:255,0,255)",
+		{name = "trees_old_wood.png^[lowpart:50:trees_old_wood.png\\^[transformR90", align_style = "node"},
+		{name = "trees_old_wood.png^[transformR270^[lowpart:50:trees_old_wood.png", align_style = "node"},
 		"trees_old_wood.png"
 	}
 })
@@ -456,7 +556,7 @@ minetest.register_abm({
 			local branch_pos = {x = pos.x, y = pos.y + 1, z = pos.z}
 			local branch_node = minetest.get_node(branch_pos)
 			local leaf_pos = minetest.find_node_near(branch_pos, 1, "trees:leaves_apple")
-			if minetest.get_node_light(leaf_pos) > 10 and branch_node.name == "trees:trunk_apple" then
+			if leaf_pos and minetest.get_node_light(leaf_pos) > 10 and branch_node.name == "trees:trunk_apple" then
 				local trunk_pos = find_apple_trunk(branch_pos)
 				if trunk_pos then
 					local node1 = minetest.get_node({x = trunk_pos.x, y = trunk_pos.y - 1, z = trunk_pos.z})

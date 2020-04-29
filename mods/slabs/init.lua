@@ -208,7 +208,8 @@ function slabs.register_slab(name, def, recipeitem, craft)
 		type = "fixed",
 		fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5}
 	}
-	if recipeitem then
+	if def.on_place then
+	elseif recipeitem then
 		slab_def.on_place = function(itemstack, placer, pointed_thing)
 			if pointed_thing.type ~= "node" then
 				return itemstack
@@ -231,16 +232,6 @@ function slabs.register_slab(name, def, recipeitem, craft)
 			end
 			return minetest.item_place(itemstack, placer, pointed_thing, param2)
 		end
-		if craft ~= false then
-			minetest.register_craft({
-				output = name.." 4",
-				recipe = {{recipeitem, recipeitem}}
-			})
-			minetest.register_craft({
-				output = recipeitem,
-				recipe = {{name}, {name}}
-			})
-		end
 	else
 		slab_def.on_place = function(itemstack, placer, pointed_thing)
 			if pointed_thing.type ~= "node" then
@@ -259,6 +250,17 @@ function slabs.register_slab(name, def, recipeitem, craft)
 	end
 
 	minetest.register_node(name, slab_def)
+
+	if craft ~= false and recipeitem then
+		minetest.register_craft({
+			output = name.." 4",
+			recipe = {{recipeitem, recipeitem}}
+		})
+		minetest.register_craft({
+			output = recipeitem,
+			recipe = {{name}, {name}}
+		})
+	end
 end
 
 function slabs.register_stair(name, def, recipeitem, stairtiles)

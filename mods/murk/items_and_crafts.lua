@@ -425,9 +425,13 @@ minetest.register_node("murk:lava_source", {
 			length = 1,
 		}
 	}},
+	collision_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5}
+	},
 	paramtype = "light",
 	light_source = 13,
-	walkable = false,
+	walkable = true,
 	pointable = true,
 	diggable = false,
 	buildable_to = false,
@@ -440,7 +444,7 @@ minetest.register_node("murk:lava_source", {
 	liquid_range = 3,
 	damage_per_second = 8,
 	post_effect_color = {a = 255, r = 0, g = 0, b = 0},
-	groups = {},
+	groups = {disable_jump = 1}
 })
 
 minetest.register_node("murk:lava_flowing", {
