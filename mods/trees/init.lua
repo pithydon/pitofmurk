@@ -125,7 +125,7 @@ for _,v in ipairs({
 		description = v[1].." Fence",
 		tiles = {"trees_"..v[2].."_wood_fence_top.png", "trees_"..v[2].."_wood_fence_top.png", "trees_"..v[2].."_wood_fence_side.png"},
 		inventory_image = "trees_"..v[2].."_wood_fence_inv.png",
-		wield_image = "trees_"..v[2].."_wood_fence_side.png",
+		wield_image = "trees_"..v[2].."_wood_fence_wield.png",
 		groups = v[4],
 		stack_max = 64
 	}, "trees:wood_"..v[2])
@@ -341,7 +341,7 @@ walls.register_fence("trees:wood_old_fence", {
 	description = "Old Fence",
 	tiles = {"trees_old_wood_fence_top.png", "trees_old_wood_fence_top.png", "trees_old_wood_fence_side.png"},
 	inventory_image = "trees_old_wood_fence_inv.png",
-	wield_image = "trees_old_wood_fence_side.png",
+	wield_image = "trees_old_wood_fence_wield.png",
 	groups = {axe = 1, hand = 3},
 	stack_max = 64
 }, "trees:wood_old")

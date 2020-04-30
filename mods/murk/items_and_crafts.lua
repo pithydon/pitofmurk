@@ -619,7 +619,7 @@ walls.register_fence("murk:doomstone_fence", {
 	description = "Doomstone Fence",
 	tiles = {"murk_doomstone_top.png", "murk_doomstone_top.png", "murk_doomstone_fence.png"},
 	inventory_image = "murk_doomstone_fence_inv.png",
-	wield_image = "murk_doomstone_fence.png",
+	wield_image = "murk_doomstone_fence_wield.png",
 	groups = {pick = 3},
 	connects_to = {"murk:doomstone", "group:fence"},
 	stack_max = 32

@@ -70,7 +70,7 @@ slabs.register_slab_and_stair("ores:gold_block", {
 
 panes.register_pane("ores:iron_bar", {
 	description = "Iron Bars",
-	tiles = {"ores_iron_bar_top.png", "ores_iron_bar_top.png", "ores_iron_bar_side.png"},
+	tiles = {{name = "ores_iron_bar_top.png", align_style = "user"}, {name = "ores_iron_bar_top.png", align_style = "user"}, "ores_iron_bar_side.png"},
 	inventory_image = "ores_iron_bar_side.png",
 	node_box = panes.boxes.bars,
 	collision_box = panes.boxes.fat,
@@ -81,7 +81,7 @@ panes.register_pane("ores:iron_bar", {
 
 panes.register_pane("ores:gold_bar", {
 	description = "Gold Bars",
-	tiles = {"ores_gold_bar_top.png", "ores_gold_bar_top.png", "ores_gold_bar_side.png"},
+	tiles = {{name = "ores_gold_bar_top.png", align_style = "user"}, {name = "ores_gold_bar_top.png", align_style = "user"}, "ores_gold_bar_side.png"},
 	inventory_image = "ores_gold_bar_side.png",
 	node_box = panes.boxes.bars,
 	collision_box = panes.boxes.fat,

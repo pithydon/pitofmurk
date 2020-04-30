@@ -266,7 +266,7 @@ function panes.register_pane(name, def)
 				param2 = 4
 			end
 		end
-		return minetest.item_place(itemstack, placer, pointed_thing, param2)
+		return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 	end
 	n_def.after_place_node = function(pos, placer, itemstack, pointed_thing)
 		local node = minetest.get_node(pos)
@@ -423,7 +423,7 @@ function panes.register_mesh_pane(name, def)
 				param2 = 4
 			end
 		end
-		return minetest.item_place(itemstack, placer, pointed_thing, param2)
+		return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 	end
 	n_def.after_place_node = function(pos, placer, itemstack, pointed_thing)
 		local node = minetest.get_node(pos)
