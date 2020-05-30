@@ -50,7 +50,7 @@ for _,v in ipairs({
 			elseif under.z ~= above.z then
 				param2 = 4
 			else
-				param2 = 12
+				param2 = 13
 			end
 			return minetest.item_place(itemstack, placer, pointed_thing, param2)
 		end
@@ -67,12 +67,12 @@ for _,v in ipairs({
 		stack_max = 64
 	})
 
-	slabs.register_slab("trees:trunk_"..v[2].."_slab", {
+	mini_blocks.register_slab("trees:trunk_"..v[2].."_slab", {
 		description = v[1].." Trunk Slab",
 		tiles = {"trees_"..v[2].."_trunk_top.png", "trees_"..v[2].."_trunk_top.png", "trees_"..v[2].."_trunk.png"},
 		groups = v[3],
 		stack_max = 64
-	}, "trees:trunk_"..v[2])
+	})
 
 	local wood_groups = table.copy(v[4])
 	wood_groups.plank = 1
@@ -121,14 +121,13 @@ for _,v in ipairs({
 		end
 	})
 
-	walls.register_fence("trees:wood_"..v[2].."_fence", {
+	barrier.register_fence("trees:wood_"..v[2].."_fence", {
 		description = v[1].." Fence",
 		tiles = {"trees_"..v[2].."_wood_fence_top.png", "trees_"..v[2].."_wood_fence_top.png", "trees_"..v[2].."_wood_fence_side.png"},
-		inventory_image = "trees_"..v[2].."_wood_fence_inv.png",
-		wield_image = "trees_"..v[2].."_wood_fence_wield.png",
+		--inventory_image = "trees_"..v[2].."_wood_fence_inv.png",
 		groups = v[4],
 		stack_max = 64
-	}, "trees:wood_"..v[2])
+	})
 
 	doors.register_gate("trees:wood_"..v[2].."_gate", {
 		description = v[1].." Gate",
@@ -138,7 +137,7 @@ for _,v in ipairs({
 		stack_max = 64
 	}, "trees:wood_"..v[2])
 
-	slabs.register_slab("trees:wood_"..v[2].."_slab", {
+	mini_blocks.register_slab("trees:wood_"..v[2].."_slab", {
 		description = v[1].." Wood Slab",
 		tiles = {{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
 		groups = v[4],
@@ -211,20 +210,21 @@ for _,v in ipairs({
 			end
 			return minetest.node_punch(pos, node, puncher, pointed_thing)
 		end
-	}, "trees:wood_"..v[2])
+	})
 
-	slabs.register_stair("trees:wood_"..v[2].."_stair", {
+	mini_blocks.register_step("trees:wood_"..v[2].."_stair", {
 		description = v[1].." Wood Stair",
 		groups = v[4],
+		tiles = {
+			step = {{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
+			step_outer = {{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
+			step_inner = {
+				{name = "trees_"..v[2].."_wood.png^[lowpart:50:trees_"..v[2].."_wood.png\\^[transformR90", align_style = "node"},
+				{name = "trees_"..v[2].."_wood.png^[transformR270^[lowpart:50:trees_"..v[2].."_wood.png", align_style = "node"},
+				"trees_"..v[2].."_wood.png"
+			}
+		},
 		stack_max = 64
-	}, "trees:wood_"..v[2], {
-		{{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
-		{{name = "trees_"..v[2].."_wood.png", align_style = "node"}, {name = "trees_"..v[2].."_wood.png", align_style = "node"}, "trees_"..v[2].."_wood.png"},
-		{
-			{name = "trees_"..v[2].."_wood.png^[lowpart:50:trees_"..v[2].."_wood.png\\^[transformR90", align_style = "node"},
-			{name = "trees_"..v[2].."_wood.png^[transformR270^[lowpart:50:trees_"..v[2].."_wood.png", align_style = "node"},
-			"trees_"..v[2].."_wood.png"
-		}
 	})
 
 	local wood_blocks_groups = table.copy(v[4])
@@ -337,16 +337,15 @@ minetest.register_node("trees:wood_old", {
 	end
 })
 
-walls.register_fence("trees:wood_old_fence", {
+barrier.register_fence("trees:wood_old_fence", {
 	description = "Old Fence",
 	tiles = {"trees_old_wood_fence_top.png", "trees_old_wood_fence_top.png", "trees_old_wood_fence_side.png"},
-	inventory_image = "trees_old_wood_fence_inv.png",
-	wield_image = "trees_old_wood_fence_wield.png",
+	--inventory_image = "trees_old_wood_fence_inv.png",
 	groups = {axe = 1, hand = 3},
 	stack_max = 64
-}, "trees:wood_old")
+})
 
-slabs.register_slab("trees:wood_old_slab", {
+mini_blocks.register_slab("trees:wood_old_slab", {
 	description = "Old Wood Slab",
 	tiles = {{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
 	groups = {axe = 1, hand = 3},
@@ -419,20 +418,21 @@ slabs.register_slab("trees:wood_old_slab", {
 		end
 		return minetest.node_punch(pos, node, puncher, pointed_thing)
 	end
-}, "trees:wood_old")
+})
 
-slabs.register_stair("trees:wood_old_stair", {
+mini_blocks.register_step("trees:wood_old_stair", {
 	description = "Old Wood Stair",
 	groups = {axe = 1, hand = 3},
+	tiles = {
+		step = {{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
+		step_outer = {{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
+		step_inner = {
+			{name = "trees_old_wood.png^[lowpart:50:trees_old_wood.png\\^[transformR90", align_style = "node"},
+			{name = "trees_old_wood.png^[transformR270^[lowpart:50:trees_old_wood.png", align_style = "node"},
+			"trees_old_wood.png"
+		}
+	},
 	stack_max = 64
-}, "trees:wood_old", {
-	{{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
-	{{name = "trees_old_wood.png", align_style = "node"}, {name = "trees_old_wood.png", align_style = "node"}, "trees_old_wood.png"},
-	{
-		{name = "trees_old_wood.png^[lowpart:50:trees_old_wood.png\\^[transformR90", align_style = "node"},
-		{name = "trees_old_wood.png^[transformR270^[lowpart:50:trees_old_wood.png", align_style = "node"},
-		"trees_old_wood.png"
-	}
 })
 
 minetest.register_node("trees:wood_block_old", {

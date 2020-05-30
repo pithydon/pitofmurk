@@ -59,7 +59,7 @@ panes.boxes = {
 	}
 }
 
-local default_pane = panes.boxes.flat
+local pane_boxes = panes.boxes
 
 local get_pane = function(num, panes, param2)
 	if num == 0 then
@@ -100,30 +100,6 @@ local get_mesh_pane = function(num, panes, param2)
 		return {name = panes[4], param2 = 0}
 	end
 end
-
-local r_box = {
-	type = "fixed",
-	fixed = {
-		{-0.0625, -0.5, 0.0625, 0.0625, 0.5, 0.5},
-		{-0.0625, -0.5, -0.0625, 0.5, 0.5, 0.0625}
-	}
-}
-
-local t_box = {
-	type = "fixed",
-	fixed = {
-		{-0.0625, -0.5, 0.0625, 0.0625, 0.5, 0.5},
-		{-0.5, -0.5, -0.0625, 0.5, 0.5, 0.0625}
-	}
-}
-
-local x_box = {
-	type = "fixed",
-	fixed = {
-		{-0.0625, -0.5, -0.5, 0.0625, 0.5, 0.5},
-		{-0.5, -0.5, -0.0625, 0.5, 0.5, 0.0625}
-	}
-}
 
 function panes.register_pane(name, def)
 	local panes = {name, name.."_connect"}
@@ -208,16 +184,30 @@ function panes.register_pane(name, def)
 	else
 		c_def.node_box = {
 			type = "connected",
-			fixed = default_pane.center,
-			connect_front = default_pane.connect_front,
-			connect_left = default_pane.connect_left,
-			connect_back = default_pane.connect_back,
-			connect_right = default_pane.connect_right
+			fixed = pane_boxes.flat.center,
+			connect_front = pane_boxes.flat.connect_front,
+			connect_left = pane_boxes.flat.connect_left,
+			connect_back = pane_boxes.flat.connect_back,
+			connect_right = pane_boxes.flat.connect_right
 		}
 		n_def.node_box = {
 			type = "fixed",
-			fixed = default_pane.fixed
+			fixed = pane_boxes.flat.fixed
 		}
+		if not def.collision_box then
+			c_def.collision_box = {
+				type = "connected",
+				fixed = pane_boxes.fat.center,
+				connect_front = pane_boxes.fat.connect_front,
+				connect_left = pane_boxes.fat.connect_left,
+				connect_back = pane_boxes.fat.connect_back,
+				connect_right = pane_boxes.fat.connect_right
+			}
+			n_def.collision_box = {
+				type = "fixed",
+				fixed = pane_boxes.fat.fixed
+			}
+		end
 	end
 	if def.collision_box then
 		c_def.collision_box = {
@@ -404,6 +394,10 @@ function panes.register_mesh_pane(name, def)
 		type = "fixed",
 		fixed = {-0.5, -0.5, -0.0625, 0.5, 0.5, 0.0625}
 	}
+	n_def.collision_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.125, 0.5, 0.5, 0.125}
+	}
 	n_def.on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then
 			return itemstack
@@ -467,15 +461,52 @@ function panes.register_mesh_pane(name, def)
 		local node = get_mesh_pane(num, panes, param2)
 		minetest.swap_node(pos, node)
 	end
+
 	r_def.mesh = "panes_r.obj"
-	r_def.collision_box = r_box
-	r_def.selection_box = r_box
+	r_def.collision_box = {
+		type = "fixed",
+		fixed = {
+			{-0.125, -0.5, 0.125, 0.125, 0.5, 0.5},
+			{-0.125, -0.5, -0.125, 0.5, 0.5, 0.125}
+		}
+	}
+	r_def.selection_box = {
+		type = "fixed",
+		fixed = {
+			{-0.0625, -0.5, 0.0625, 0.0625, 0.5, 0.5},
+			{-0.0625, -0.5, -0.0625, 0.5, 0.5, 0.0625}
+		}
+	}
 	t_def.mesh = "panes_t.obj"
-	t_def.collision_box = t_box
-	t_def.selection_box = t_box
+	t_def.collision_box = {
+		type = "fixed",
+		fixed = {
+			{-0.125, -0.5, 0.125, 0.125, 0.5, 0.5},
+			{-0.5, -0.5, -0.125, 0.5, 0.5, 0.125}
+		}
+	}
+	t_def.selection_box = {
+		type = "fixed",
+		fixed = {
+			{-0.0625, -0.5, 0.0625, 0.0625, 0.5, 0.5},
+			{-0.5, -0.5, -0.0625, 0.5, 0.5, 0.0625}
+		}
+	}
 	x_def.mesh = "panes_x.obj"
-	x_def.collision_box = x_box
-	x_def.selection_box = x_box
+	x_def.collision_box = {
+		type = "fixed",
+		fixed = {
+			{-0.125, -0.5, -0.5, 0.125, 0.5, 0.5},
+			{-0.5, -0.5, -0.125, 0.5, 0.5, 0.125}
+		}
+	}
+	x_def.selection_box = {
+		type = "fixed",
+		fixed = {
+			{-0.0625, -0.5, -0.5, 0.0625, 0.5, 0.5},
+			{-0.5, -0.5, -0.0625, 0.5, 0.5, 0.0625}
+		}
+	}
 
 	minetest.register_node(name, n_def)
 	minetest.register_node(name.."_r", r_def)

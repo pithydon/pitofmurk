@@ -1,87 +1,246 @@
-minetest.register_node("murk:stone", {
-	description = "Stone",
-	tiles = {"murk_stone.png"},
-	groups = {pick = 2, pseudo_wall = 1},
-	drop = "murk:cobble",
-	stack_max = 32
-})
+local fresh_node = {}
+local remove_fresh = function(pos)
+	for k,v in pairs(fresh_node) do
+		if vector.equals(v, pos) then
+			fresh_node[k] = nil
+			break
+		end
+	end
+end
 
-minetest.register_node("murk:stone_brick", {
-	description = "Stone Brick",
-	tiles = {"murk_stone_brick_top.png", "murk_stone_brick_top.png", "murk_stone_brick_side.png"},
-	groups = {pick = 2, pseudo_wall = 1},
-	stack_max = 32
-})
+for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f2a", "#c8c08e", "#5d5d4d", "#a1a4ae"}) do
+	minetest.register_node("murk:stone_"..i, {
+		description = "Stone",
+		tiles = {"murk_stone.png^[multiply:"..v},
+		groups = {pick = 2, pseudo_wall = 1},
+		drop = "murk:stone_"..i.."_cobble",
+		stack_max = 1024
+	})
 
-slabs.register_slab_and_stair("murk:stone_brick", {
-	description = "Stone Brick",
-	tiles = {"murk_stone_brick_top.png", "murk_stone_brick_top.png", "murk_stone_brick_side.png"},
-	groups = {pick = 2},
-	stack_max = 32
-})
+	minetest.register_node("murk:stone_"..i.."_cobble", {
+		description = "Cobblestone",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024
+	})
 
-minetest.register_node("murk:cobble", {
-	description = "Cobblestone",
-	tiles = {"murk_cobble.png"},
-	groups = {pick = 1, pseudo_wall = 1},
-	stack_max = 64
-})
+	minetest.register_node("murk:stone_"..i.."_cobble_mossy", {
+		description = "Mossy Cobblestone",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024
+	})
 
-minetest.register_node("murk:moss_cobble", {
-	description = "Mossy Cobblestone",
-	tiles = {"murk_moss_cobble.png"},
-	groups = {pick = 1, pseudo_wall = 1},
-	stack_max = 64
-})
+	minetest.register_node("murk:stone_"..i.."_block", {
+		description = "Stone Block",
+		tiles = {"murk_stone_block.png^[multiply:"..v},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024
+	})
+
+	minetest.register_node("murk:stone_"..i.."_brick", {
+		description = "Stone Brick",
+		paramtype2 = "facedir",
+		tiles = {"murk_stone_brick.png^[multiply:"..v},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024,
+		on_place = function(itemstack, placer, pointed_thing)
+			if pointed_thing.type ~= "node" then
+				return itemstack
+			end
+			local under = pointed_thing.under
+			local above = pointed_thing.above
+			local param2 = 0
+			local under_node = minetest.get_node(under)
+			local name_comp = under_node.name:split('_')
+			if under.y == above.y and name_comp[1] == "murk:stone" and name_comp[3] == "brick" then
+				param2 = under_node.param2
+			else
+				local pos = placer:get_pos()
+				local x = pos.x - under.x
+				local z = pos.z - under.z
+				if math.abs(x) > math.abs(z) then
+					param2 = 1
+				end
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end,
+		after_place_node = function(pos, placer, itemstack, pointed_thing)
+			fresh_node[placer:get_player_name()] = pos
+			minetest.after(1, remove_fresh, pos)
+		end,
+		on_punch = function(pos, node, puncher, pointed_thing)
+			local player_name = puncher:get_player_name()
+			if fresh_node[player_name] and vector.equals(fresh_node[player_name], pos) then
+				if node.param2 == 0 then
+					minetest.swap_node(pos, {name = node.name, param2 = 1})
+				else
+					minetest.swap_node(pos, {name = node.name, param2 = 0})
+				end
+				fresh_node[player_name] = nil
+			end
+			return minetest.node_punch(pos, node, puncher, pointed_thing)
+		end
+	})
+
+	minetest.register_node("murk:stone_"..i.."_tile", {
+		description = "Stone Tile",
+		paramtype2 = "color",
+		palette = "murk_stone_palette_256.png",
+		tiles = {{name = "murk_stone_tile.png", color = v}},
+		overlay_tiles = {"murk_stone_tile_1.png", "murk_stone_tile_1.png", "murk_stone_tile_1.png", "murk_stone_tile_1.png", "murk_stone_tile_2.png"},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024,
+		on_place = function(itemstack, placer, pointed_thing)
+			local meta = itemstack:get_meta()
+			local param2 = meta:get("palette_index")
+			if param2 == nil then
+				param2 = i - 1
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end
+	})
+
+	minetest.register_node("murk:stone_"..i.."_chiseled", {
+		description = "Chiseled Stone",
+		paramtype2 = "facedir",
+		tiles = {"murk_stone_chiseled_top.png^[multiply:"..v, "murk_stone_chiseled_top.png^[multiply:"..v, "murk_stone_chiseled.png^[multiply:"..v},
+		groups = {pick = 1},
+		connect_sides = {"front", "left", "back", "right"},
+		stack_max = 1024,
+		on_place = function(itemstack, placer, pointed_thing)
+			if pointed_thing.type ~= "node" then
+				return itemstack
+			end
+			local under = pointed_thing.under
+			local above = pointed_thing.above
+			local param2
+			if under.y ~= above.y then
+				param2 = 0
+			elseif under.z ~= above.z then
+				param2 = 4
+			else
+				param2 = 13
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end
+	})
+
+	local rcolor = "#a99994"
+	if i == 3 then rcolor = "#9a9a9a" end
+	minetest.register_node("murk:stone_"..i.."_rock", {
+		description = "Stone Rock",
+		tiles = {"murk_stone.png^[multiply:"..v.."^(murk_stone_rock.png^[multiply:"..rcolor..")"},
+		groups = {super_hand = 1, not_in_creative_inventory = 1},
+		drop = ""
+	})
+
+	mini_blocks.register_all("murk:stone_"..i, {
+		description = "Stone",
+		tiles = {"murk_stone.png^[multiply:"..v},
+		groups = {pick = 1}
+	})
+
+	mini_blocks.register_all("murk:stone_"..i.."_cobble", {
+		description = "Cobblestone",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v},
+		groups = {pick = 1}
+	})
+
+	mini_blocks.register_all("murk:stone_"..i.."_cobble_mossy", {
+		description = "Mossy Cobblestone",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1}
+	})
+
+	mini_blocks.register_slab("murk:stone_"..i.."_block_slab", {
+		description = "Stone Block Slab",
+		tiles = {"murk_stone_block.png^[multiply:"..v, "murk_stone_block.png^[multiply:"..v, "murk_stone_slab.png^[multiply:"..v},
+		groups = {pick = 2}
+	})
+
+	mini_blocks.register_slab("murk:stone_"..i.."_brick_slab", {
+		description = "Stone Brick Slab",
+		tiles = {"murk_stone_brick.png^[multiply:"..v, "murk_stone_brick.png^[multiply:"..v, "murk_stone_slab.png^[multiply:"..v},
+		groups = {pick = 2}
+	})
+
+	mini_blocks.register_stair("murk:stone_"..i.."_brick_stair", {
+		description = "Stone Brick Stair",
+		tiles = {{name = "murk_stone_brick.png^[multiply:"..v, align_style = "none"},
+				{name = "murk_stone_brick.png^[multiply:"..v, align_style = "none"}, "murk_stone_brick.png^[multiply:"..v},
+		groups = {pick = 2}
+	})
+
+	mini_blocks.register_step("murk:stone_"..i.."_brick_step", {
+		description = "Stone Brick Step",
+		tiles = {
+			step = {{name = "murk_stone_slab.png^[multiply:"..v, align_style = "node"}, {name = "murk_stone_slab.png^[multiply:"..v, align_style = "node"},
+					"murk_stone_tile.png^[multiply:"..v, "murk_stone_tile.png^[multiply:"..v, "murk_stone_slab.png^[multiply:"..v},
+			step_outer = {"murk_stone_tile.png^[multiply:"..v},
+			step_inner = {"murk_stone_block.png^[multiply:"..v, "murk_stone_block.png^[multiply:"..v, "murk_stone_tile.png^[multiply:"..v,
+					"murk_stone_slab.png^[multiply:"..v, "murk_stone_slab.png^[multiply:"..v, "murk_stone_tile.png^[multiply:"..v}
+		},
+		groups = {pick = 2}
+	})
+
+	barrier.register_wall("murk:stone_"..i.."_cobble_wall", {
+		description = "Cobblestone Wall",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v},
+		groups = {pick = 1}
+	})
+
+	barrier.register_wall("murk:stone_"..i.."_cobble_mossy_wall", {
+		description = "Mossy Cobblestone Wall",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1}
+	})
+
+	barrier.register_wall("murk:stone_"..i.."_brick_wall", {
+		description = "Stone Brick Wall",
+		tiles = {
+			wall = {{name = "murk_stone_pedestal.png^[multiply:"..v, align_style = "none"}, "murk_stone_brick.png^[multiply:"..v},
+			column = {"murk_stone_brick.png^[multiply:"..v}
+		},
+		groups = {pick = 1}
+	})
+
+	countertop.register_pedestal("murk:stone_"..i.."_pedestal", {
+		description = "Stone Pedestal",
+		tiles = {"murk_stone.png^[multiply:"..v, "murk_stone.png^[multiply:"..v, "murk_stone_pedestal.png^[multiply:"..v},
+		groups = {pick = 1},
+		connects_to = {"murk:stone_"..i.."_brick_wall", "murk:stone_"..i.."_brick_wall_column", "murk:stone_"..i.."_pedestal"}
+	})
+
+	countertop.register_pedestal("murk:stone_"..i.."_cobble_pedestal", {
+		description = "Cobblestone Pedestal",
+		tiles = {"murk_stone_cobble.png^[multiply:"..v},
+		groups = {pick = 1},
+		connects_to = {
+			"murk:stone_"..i.."_cobble_wall", "murk:stone_"..i.."_cobble_wall_column",
+			"murk:stone_"..i.."_cobble_mossy_wall", "murk:stone_"..i.."_cobble_mossy_wall_column",
+			"murk:stone_"..i.."_cobble_pedestal"
+		}
+	})
+
+	countertop.register_pedestal("murk:stone_"..i.."_chiseled_pedestal", {
+		description = "Chiseled Stone Pedestal",
+		tiles = {"murk_stone_chiseled_top.png^[multiply:"..v, "murk_stone_chiseled_top.png^[multiply:"..v, "murk_stone_chiseled.png^[multiply:"..v},
+		groups = {pick = 1},
+		connects_to = {"murk:stone_"..i.."_chiseled", "murk:stone_"..i.."_chiseled_pedestal"}
+	})
+end
 
 minetest.register_node("murk:rose_cobble", {
 	description = "Rose Cobblestone",
-	tiles = {"murk_rose_cobble.png"},
+	tiles = {"murk_stone_cobble.png^[multiply:#767676^murk_rose_bush.png"},
 	groups = {pick = 1, pseudo_wall = 1},
 	stack_max = 64
 })
 
-walls.register_wall("murk:cobble_wall", {
-	description = "Cobblestone Wall",
-	tiles = {"murk_cobble.png"},
-	inventory_image = "murk_cobble_wall_inv.png",
-	groups = {pick = 1},
-	stack_max = 64
-}, "murk:cobble")
-
-walls.register_wall("murk:moss_cobble_wall", {
-	description = "Mossy Cobblestone Wall",
-	tiles = {"murk_moss_cobble.png"},
-	inventory_image = "murk_moss_cobble_wall_inv.png",
-	groups = {pick = 1},
-	stack_max = 64
-}, "murk:moss_cobble")
-
-walls.register_wall("murk:rose_cobble_wall", {
+barrier.register_wall("murk:rose_cobble_wall", {
 	description = "Rose Cobblestone Wall",
-	tiles = {"murk_rose_cobble.png"},
-	inventory_image = "murk_rose_cobble_wall_inv.png",
-	groups = {pick = 1},
-	stack_max = 64
-}, "murk:rose_cobble")
-
-walls.register_pedestal("murk:cobble_pedestal", {
-	description = "Cobblestone Pedestal",
-	tiles = {"murk_cobble.png"},
-	groups = {pick = 1},
-	stack_max = 64
-}, "murk:cobble_wall", "murk:cobble_slab")
-
-slabs.register_slab_and_stair("murk:cobble", {
-	description = "Cobblestone",
-	tiles = {"murk_cobble.png"},
-	groups = {pick = 1},
-	stack_max = 64
-})
-
-slabs.register_slab_and_stair("murk:moss_cobble", {
-	description = "Mossy Cobblestone",
-	tiles = {"murk_moss_cobble.png"},
+	tiles = {"murk_stone_cobble.png^[multiply:#767676^murk_rose_bush.png"},
 	groups = {pick = 1},
 	stack_max = 64
 })
@@ -109,15 +268,14 @@ minetest.register_node("murk:brick", {
 	stack_max = 64
 })
 
-walls.register_wall("murk:brick_wall", {
+barrier.register_wall("murk:brick_wall", {
 	description = "Brick Wall",
 	tiles = {"murk_brick_wall_top.png", "murk_brick_wall_top.png", "murk_brick_wall_side.png"},
-	inventory_image = "murk_brick_wall_inv.png",
 	groups = {pick = 2},
 	stack_max = 64
-}, "murk:brick")
+})
 
-slabs.register_slab_and_stair("murk:brick", {
+mini_blocks.register_all("murk:brick", {
 	description = "Brick",
 	tiles = {"murk_brick.png"},
 	groups = {pick = 2},
@@ -201,15 +359,14 @@ minetest.register_node("murk:sandstone", {
 	stack_max = 32
 })
 
-walls.register_wall("murk:sandstone_wall", {
+barrier.register_wall("murk:sandstone_wall", {
 	description = "Sandstone Wall",
 	tiles = {"murk_sandstone.png"},
-	inventory_image = "murk_sandstone_wall_inv.png",
 	groups = {pick = 1, hand = 4,},
 	stack_max = 32
-}, "murk:sandstone")
+})
 
-slabs.register_slab_and_stair("murk:sandstone", {
+mini_blocks.register_all("murk:sandstone", {
 	description = "Sandstone",
 	tiles = {"murk_sandstone.png"},
 	groups = {pick = 1, hand = 4,},
@@ -223,7 +380,7 @@ minetest.register_node("murk:sandstone_brick", {
 	stack_max = 32
 })
 
-slabs.register_slab_and_stair("murk:sandstone_brick", {
+mini_blocks.register_all("murk:sandstone_brick", {
 	description = "Sandstone Brick",
 	tiles = {"murk_sandstone_brick_top.png", "murk_sandstone_brick_top.png", "murk_sandstone_brick_side.png"},
 	groups = {pick = 1},
@@ -244,16 +401,15 @@ minetest.register_node("murk:snow_brick", {
 	stack_max = 64
 })
 
-walls.register_wall("murk:snow_brick_wall", {
+barrier.register_wall("murk:snow_brick_wall", {
 	description = "Snow Brick Wall",
 	tiles = {"murk_snow_brick_wall_top.png", "murk_snow_brick_wall_top.png", "murk_snow_brick_wall_side.png"},
-	inventory_image = "murk_snow_brick_wall_inv.png",
 	groups = {shovel = 1, pick = 2, hand = 2},
-	connects_to = {"murk:snow_brick", "group:wall"},
+	connects_to = {"murk:snow_brick", "group:wall", "group:wall_column"},
 	stack_max = 64
-}, "murk:snow_brick")
+})
 
-slabs.register_slab_and_stair("murk:snow_brick", {
+mini_blocks.register_all("murk:snow_brick", {
 	description = "Snow Brick",
 	tiles = {"murk_snow_brick.png"},
 	groups = {shovel = 1, pick = 2, hand = 2},
@@ -556,33 +712,6 @@ minetest.register_node("murk:giant_clam", {
 	stack_max = 64
 })
 
-minetest.register_node("murk:rock", {
-	description = "Rock",
-	drawtype = "nodebox",
-	paramtype = "light",
-	tiles = {"murk_rock.png"},
-	groups = {dig_immediate = 3, falling_node = 1},
-	node_box = {
-		type = "fixed",
-		fixed = {-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}
-	},
-	stack_max = 64
-})
-
-minetest.register_node("murk:glow_rock", {
-	description = "Glow Rock",
-	drawtype = "nodebox",
-	paramtype = "light",
-	tiles = {"murk_glow_rock.png"},
-	light_source = 8,
-	groups = {dig_immediate = 3, falling_node = 1},
-	node_box = {
-		type = "fixed",
-		fixed = {-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}
-	},
-	stack_max = 64
-})
-
 minetest.register_node("murk:glowstone", {
 	description = "Glowstone",
 	paramtype = "light",
@@ -599,30 +728,6 @@ minetest.register_node("murk:reinforced_glowstone", {
 	light_source = 11,
 	groups = {pick = 1, hand = 4},
 	stack_max = 64
-})
-
-minetest.register_node("murk:doomstone", {
-	description = "Doomstone",
-	tiles = {"murk_doomstone_top.png", "murk_doomstone_top.png", "murk_doomstone_side.png"},
-	groups = {pick = 3},
-	stack_max = 32
-})
-
-slabs.register_slab_and_stair("murk:doomstone", {
-	description = "Doomstone",
-	tiles = {"murk_doomstone_top.png", "murk_doomstone_top.png", "murk_doomstone_side.png"},
-	groups = {pick = 3},
-	stack_max = 32
-})
-
-walls.register_fence("murk:doomstone_fence", {
-	description = "Doomstone Fence",
-	tiles = {"murk_doomstone_top.png", "murk_doomstone_top.png", "murk_doomstone_fence.png"},
-	inventory_image = "murk_doomstone_fence_inv.png",
-	wield_image = "murk_doomstone_fence_wield.png",
-	groups = {pick = 3},
-	connects_to = {"murk:doomstone", "group:fence"},
-	stack_max = 32
 })
 
 if minetest.setting_getbool("opaque_ice") ~= false then
@@ -673,17 +778,12 @@ minetest.register_node("murk:glass", {
 	stack_max = 64
 })
 
-slabs.register_slab_and_stair("murk:glass", {
+mini_blocks.register_slab("murk:glass_slab", {
 	description = "Glass",
 	tiles = {"murk_glass.png", "murk_glass.png", "murk_glass_slab.png"},
 	sunlight_propagates = true,
 	groups = {pick = 1, hand = 1},
 	stack_max = 64
-}, {
-	{{name = "murk_glass_slab.png", align_style = "node"}, {name = "murk_glass_slab.png", align_style = "node"},
-			"murk_glass_stair.png", "murk_glass_stair.png", "murk_glass_slab.png"},
-	{"murk_glass_stair.png"},
-	{"murk_glass_stair.png"}
 })
 
 panes.register_mesh_pane("murk:glass_pane", {
@@ -717,22 +817,6 @@ minetest.register_craftitem("murk:brick_item", {
 	inventory_image = "murk_brick_item.png",
 	wield_image = "murk_brick_item.png",
 	stack_max = 64
-})
-
-minetest.register_craft({
-	output = "murk:rock 9",
-	recipe = {
-		{"murk:gravel"}
-	}
-})
-
-minetest.register_craft({
-	output = "murk:gravel",
-	recipe = {
-		{"murk:rock", "murk:rock", "murk:rock"},
-		{"murk:rock", "murk:rock", "murk:rock"},
-		{"murk:rock", "murk:rock", "murk:rock"}
-	}
 })
 
 minetest.register_craft({

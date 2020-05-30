@@ -3,7 +3,7 @@ doors = {}
 local creative = minetest.setting_getbool("creative_mode")
 
 minetest.register_node("doors:door_top", {
-	decription = "Don't allow nodes to be placed on doors",
+	decription = "Don't allow nodes to be placed in doors",
 	drawtype = "nodebox",
 	paramtype = "light",
 	paramtype2 = "facedir",
@@ -192,7 +192,7 @@ function doors.register_gate(name, def, recipeitem)
 	}
 	gate_def.collision_box = {
 		type = "fixed",
-		fixed = {-0.5, -0.5, -0.125, 0.5, 0.5, 0.125}
+		fixed = {-0.5, -0.5, -0.25, 0.5, 1, 0.25}
 	}
 	gate_def.selection_box = {
 		type = "fixed",
@@ -212,9 +212,9 @@ function doors.register_gate(name, def, recipeitem)
 	gate_open_def.collision_box = {
 		type = "fixed",
 		fixed = {
-			{-0.5, -0.5, -0.125, -0.375, 0.5, 0.125},
-			{0.375, -0.5, -0.125, 0.5, 0.5, 0.125},
-			{-0.5, 0.125, -0.5, -0.375, 0.375, -0.125}
+			{-0.5, -0.5, -0.25, -0.375, 1, 0.25},
+			{0.375, -0.5, -0.25, 0.5, 1, 0.25},
+			{-0.5, 0, -0.5, -0.375, 0.5, -0.25}
 		}
 	}
 	gate_open_def.selection_box = {

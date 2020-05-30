@@ -13,7 +13,8 @@ if creative then
 				pick = {times = {0.5, 0.5, 0.5, 0.5}, uses = 0, maxlevel = 3},
 				sword = {times = {0.5, 0.5, 0.5, 0.5}, uses = 0, maxlevel = 3},
 				axe = {times = {0.5, 0.5, 0.5, 0.5}, uses = 0, maxlevel = 3},
-				hand = {times = {0.5, 0.5, 0.5, 0.5}, uses = 0, maxlevel = 3}
+				hand = {times = {0.5, 0.5, 0.5, 0.5}, uses = 0, maxlevel = 3},
+				super_hand = {times = {0.5}, uses = 0, maxlevel = 1}
 			}
 		}
 	})

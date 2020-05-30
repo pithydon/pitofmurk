@@ -1,7 +1,7 @@
 for _,v in ipairs({{"Coal", "coal"}, {"Gold", "gold"}, {"Iron", "iron"}, {"Silver", "silver"}}) do
 	minetest.register_node("ores:"..v[2].."_in_stone", {
 		description = v[1].." in Stone",
-		tiles = {"murk_stone.png^ores_"..v[2].."_ore.png"},
+		tiles = {"murk_stone.png^[multiply:#a49996^ores_"..v[2].."_ore.png"},
 		groups = {pick = 2},
 		drop = "ores:"..v[2].."_lump",
 		stack_max = 32
@@ -38,7 +38,7 @@ minetest.register_node("ores:iron_block", {
 	stack_max = 32
 })
 
-slabs.register_slab_and_stair("ores:iron_block", {
+mini_blocks.register_all("ores:iron_block", {
 	description = "Iron",
 	tiles = {"ores_iron_block.png"},
 	groups = {pick = 4},
@@ -61,7 +61,7 @@ minetest.register_node("ores:gold_block", {
 	stack_max = 32
 })
 
-slabs.register_slab_and_stair("ores:gold_block", {
+mini_blocks.register_all("ores:gold_block", {
 	description = "Gold",
 	tiles = {"ores_gold_block.png"},
 	groups = {pick = 3},
