@@ -8,7 +8,7 @@ local remove_fresh = function(pos)
 	end
 end
 
-for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f2a", "#c8c08e", "#5d5d4d", "#a1a4ae"}) do
+for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#685853", "#8b4b28", "#5d3f2a", "#aca48c", "#5d5d4d", "#a1a4ae"}) do
 	minetest.register_node("murk:stone_"..i, {
 		description = "Stone",
 		tiles = {"murk_stone.png^[multiply:"..v},
@@ -27,6 +27,13 @@ for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f
 	minetest.register_node("murk:stone_"..i.."_cobble_mossy", {
 		description = "Mossy Cobblestone",
 		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024
+	})
+
+	minetest.register_node("murk:stone_"..i.."_cobble_brick", {
+		description = "Cobblestone Brick",
+		tiles = {"murk_stone_cobble_brick.png^[multiply:"..v},
 		groups = {pick = 1, pseudo_wall = 1},
 		stack_max = 1024
 	})
@@ -101,6 +108,24 @@ for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f
 		end
 	})
 
+	minetest.register_node("murk:stone_"..i.."_cobble_tile", {
+		description = "Cobblestone Tile",
+		paramtype2 = "color",
+		palette = "murk_stone_palette_256.png",
+		tiles = {{name = "murk_stone_cobble.png", color = v}},
+		overlay_tiles = {"murk_stone_cobble_tile.png"},
+		groups = {pick = 1, pseudo_wall = 1},
+		stack_max = 1024,
+		on_place = function(itemstack, placer, pointed_thing)
+			local meta = itemstack:get_meta()
+			local param2 = meta:get("palette_index")
+			if param2 == nil then
+				param2 = i - 1
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end
+	})
+
 	minetest.register_node("murk:stone_"..i.."_chiseled", {
 		description = "Chiseled Stone",
 		paramtype2 = "facedir",
@@ -121,6 +146,55 @@ for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f
 				param2 = 4
 			else
 				param2 = 13
+			end
+			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
+		end
+	})
+
+	minetest.register_node("murk:stone_"..i.."_rune", {
+		description = "Stone Runes",
+		paramtype2 = "facedir",
+		tiles = {
+			{name = "murk_stone.png^[multiply:"..v, align_style = "user"},
+			{name = "murk_stone.png^[multiply:"..v, align_style = "user"},
+			"murk_stone_rune_1.png^[multiply:"..v,
+			"murk_stone_rune_2.png^[multiply:"..v,
+			"murk_stone_rune_3.png^[multiply:"..v,
+			"murk_stone_rune_4.png^[multiply:"..v
+		},
+		groups = {pick = 1},
+		stack_max = 1024,
+		on_place = function(itemstack, placer, pointed_thing)
+			local player_pos = placer:get_pos()
+			local param2
+			if player_pos.x > pointed_thing.under.x then
+				if player_pos.z > pointed_thing.under.z then
+					if placer:get_player_control().sneak then
+						param2 = 1
+					else
+						param2 = 3
+					end
+				else
+					if placer:get_player_control().sneak then
+						param2 = 2
+					else
+						param2 = 0
+					end
+				end
+			else
+				if player_pos.z > pointed_thing.under.z then
+					if placer:get_player_control().sneak then
+						param2 = 0
+					else
+						param2 = 2
+					end
+				else
+					if placer:get_player_control().sneak then
+						param2 = 3
+					else
+						param2 = 1
+					end
+				end
 			end
 			return minetest.item_place_node(itemstack, placer, pointed_thing, param2)
 		end
@@ -150,6 +224,12 @@ for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f
 	mini_blocks.register_all("murk:stone_"..i.."_cobble_mossy", {
 		description = "Mossy Cobblestone",
 		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1}
+	})
+
+	mini_blocks.register_all("murk:stone_"..i.."_cobble_brick", {
+		description = "Cobblestone Brick",
+		tiles = {"murk_stone_cobble_brick.png^[multiply:"..v},
 		groups = {pick = 1}
 	})
 
@@ -193,6 +273,12 @@ for i,v in ipairs({"#9a9a9a", "#595959", "#a99994", "#766651", "#8b4b28", "#5d3f
 	barrier.register_wall("murk:stone_"..i.."_cobble_mossy_wall", {
 		description = "Mossy Cobblestone Wall",
 		tiles = {"murk_stone_cobble.png^[multiply:"..v.."^murk_moss_cobble.png"},
+		groups = {pick = 1}
+	})
+
+	barrier.register_wall("murk:stone_"..i.."_cobble_brick_wall", {
+		description = "Cobblestone Brick Wall",
+		tiles = {"murk_stone_cobble_brick.png^[multiply:"..v},
 		groups = {pick = 1}
 	})
 
